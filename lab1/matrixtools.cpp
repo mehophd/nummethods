@@ -131,3 +131,26 @@ void printMatrix(float** original, int size) {
 
     freeMatrix(matrix, size);
 }
+
+float normVector(float* vec, int size) {
+    float result = (size > 0) ? abs(vec[0]) : 0.0f;
+    for (int i = 1; i < size; ++i) {
+        if (abs(vec[i]) > result)
+            result = abs(vec[i]);
+    }
+
+    return result;
+}
+
+float normMatrix(float** matrix, int size) {
+    float result = (size > 0) ? abs(matrix[0][0]) : 0.0f;
+
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            if (abs(matrix[i][j]) > result)
+                result = abs(matrix[i][j]);
+        }
+    }
+
+    return result;
+}

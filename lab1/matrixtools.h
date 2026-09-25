@@ -9,5 +9,9 @@ float** inverseMatrix(float** matrix, int size);
 
 void printMatrix(float** original, int size);
 
+float normVector(float* vec, int size);
+
+float normMatrix(float** matrix, int size);
+
 
 #endif
