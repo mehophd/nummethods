@@ -3,6 +3,8 @@
 
 #include "Slae.h"
 
-float* methodLA(SLAE &problem);
+float* methodLU(SLAE &problem);
+
+float* methodTDMA(SLAE &problem);
 
 #endif
