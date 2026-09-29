@@ -21,12 +21,14 @@ class SLAE {
         }
 
         ~SLAE() {
-            for (int i = 0; i < size; ++i)
+            for (int i = 0; i < size; ++i) {
                 delete[] matrix[i];
+            }
             delete[] matrix;
+            delete[] constants;
         }
 
-        int getSize() {
+        int getSize() const {
             return size;
         }
 
@@ -38,15 +40,15 @@ class SLAE {
             constants[i] = value;
         }
 
-        float getCoef(int i, int j) {
+        float getCoef(int i, int j) const {
             return matrix[i][j];
         }
 
-        float getConst(int i) {
+        float getConst(int i) const {
             return constants[i];
         }
 
-        float** getMatrixCopy() {
+        float** getMatrixCopy() const {
             float** copy = new float*[size];
             for (int i = 0; i < size; ++i) {
                 copy[i] = new float[size];
@@ -54,18 +56,18 @@ class SLAE {
                     copy[i][j] = matrix[i][j];
                 }
             }
-            return copy; 
+            return copy;
         }
 
-        float* getConstCopy() {
+        float* getConstCopy() const {
             float* copy = new float[size];
             for (int i = 0; i < size; ++i) {
                 copy[i] = constants[i];
             }
-            return copy; 
+            return copy;
         }
 
-        void printSLAE() {
+        void printSLAE() const {
             for (int i = 0; i < size; ++i) {
                 for (int j = 0; j < size; ++j) {
                     cout << matrix[i][j] << " ";

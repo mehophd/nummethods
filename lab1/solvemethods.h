@@ -7,4 +7,6 @@ float* methodLU(SLAE &problem);
 
 float* methodTDMA(SLAE &problem);
 
+float* methodSI(SLAE &problem, float eps, int limit);
+
 #endif
