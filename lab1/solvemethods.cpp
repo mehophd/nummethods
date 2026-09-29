@@ -179,6 +179,19 @@ float* methodSI(SLAE &problem, float eps, int limit) {
         inaccuracy = normVector(diff, size);
         delete[] diff;
 
+        for(int i = 0; i < size; ++i) {
+            if (isnan(curr[i]) || isinf(curr[i])) {
+                for (int k = 0; k < size; ++k) delete[] alpha[k];
+                    delete[] alpha;
+                    delete[] beta;
+                    delete[] prev;
+                    delete[] curr;
+                    freeMatrix(matrix, size);
+                    delete[] constants;
+                    return nullptr;
+                }
+        }
+
         swap(prev, curr);
         ++k;
     }
