@@ -127,7 +127,7 @@ float* methodTDMA(SLAE &problem) {
     return x;
 }
 
-float* methodSI(SLAE &problem, float eps, int limit) {
+float* methodSI(SLAE &problem, float eps, int limit, int &iterations) {
     int size = problem.getSize();
     float** matrix = problem.getMatrixCopy();
     float* constants = problem.getConstCopy();
@@ -211,6 +211,102 @@ float* methodSI(SLAE &problem, float eps, int limit) {
     
     freeMatrix(matrix, size);
     delete[] constants;
+
+    iterations = k;
+    
+    return result;
+}
+
+float* methodZ(SLAE &problem, float eps, int limit, int &iterations) {
+    int size = problem.getSize();
+    float** matrix = problem.getMatrixCopy();
+    float* constants = problem.getConstCopy();
+
+    float** alpha = new float*[size];
+    float* beta = new float[size];
+    
+    for (int i = 0; i < size; ++i) {
+        alpha[i] = new float[size];
+        if (fabs(matrix[i][i]) < 1e-7f) {
+            for (int k = 0; k <= i; ++k) delete[] alpha[k];
+            delete[] alpha;
+            delete[] beta;
+            freeMatrix(matrix, size);
+            delete[] constants;
+            return nullptr;
+        }
+        
+        beta[i] = constants[i] / matrix[i][i];
+        for (int j = 0; j < size; ++j) {
+            alpha[i][j] = (i != j) ? -matrix[i][j] / matrix[i][i] : 0.0f;
+        }
+    }
+
+    float* prev = new float[size];
+    float* curr = new float[size];
+    
+    for (int j = 0; j < size; ++j) {
+        prev[j] = beta[j];
+    }
+
+    float inaccuracy = eps + 1;
+    int k = 0;
+    
+    while (k < limit && inaccuracy > eps) {
+        for (int i = 0; i < size; ++i) {
+            float sum = 0.0f;
+            for (int j = 0; j < size; ++j) {
+                if (j < i) {
+                    sum += alpha[i][j] * curr[j];   
+                } else {
+                    sum += alpha[i][j] * prev[j]; 
+                }
+            }
+            curr[i] = beta[i] + sum;
+        }
+
+        float* diff = new float[size];
+        for (int i = 0; i < size; ++i) {
+            diff[i] = curr[i] - prev[i];
+        }
+        
+        inaccuracy = normVector(diff, size);
+        delete[] diff;
+
+        for(int i = 0; i < size; ++i) {
+            if (isnan(curr[i]) || isinf(curr[i])) {
+                for (int k = 0; k < size; ++k) delete[] alpha[k];
+                    delete[] alpha;
+                    delete[] beta;
+                    delete[] prev;
+                    delete[] curr;
+                    freeMatrix(matrix, size);
+                    delete[] constants;
+                    return nullptr;
+                }
+        }
+
+        swap(prev, curr);
+        ++k;
+    }
+
+    float* result = new float[size];
+    for (int i = 0; i < size; ++i) {
+        result[i] = prev[i];
+    }
+
+    for (int i = 0; i < size; ++i) {
+        delete[] alpha[i];
+    }
+    delete[] alpha;
+    delete[] beta;
+    delete[] prev;
+    delete[] curr;
+    
+    freeMatrix(matrix, size);
+    delete[] constants;
+
+    iterations = k;
     
     return result;
 }
