@@ -20,17 +20,61 @@ void printSolution(const char* methodName, float* solution, int size, int iters 
     }
 }
 
+void clearInput() {
+    cin.clear();
+    cin.ignore(10000, '\n');
+}
+
+int readSize() {
+    int size;
+    while (true) {
+        cout << "Введите порядок системы: ";
+        if (cin >> size && size > 0) {
+            return size;
+        }
+        cout << "Ошибка: порядок системы должен быть положительным числом." << endl;
+        clearInput();
+    }
+}
+
+float readEps() {
+    float eps;
+    while (true) {
+        cout << "Введите эпсилон: ";
+        if (cin >> eps && eps > 0) {
+            return eps;
+        }
+        cout << "Ошибка: эпсилон должен быть положительным числом." << endl;
+        clearInput();
+    }
+}
+
+int readLimit() {
+    int limit;
+    while (true) {
+        cout << "Введите предел итераций: ";
+        if (cin >> limit && limit > 0) {
+            return limit;
+        }
+        cout << "Ошибка: предел итераций должен быть положительным числом." << endl;
+        clearInput();
+    }
+}
+
 bool readMatrix(SLAE& problem, int size) {
     float value;
     cout << "Введите коэффициенты: " << endl;
     for (int i = 0; i < size; ++i) {
         for (int j = 0; j < size; ++j) {
-            cout << "c" << i << j << ":";
-            if (!(cin >> value)) {
-                cout << "Ошибка: коэффициенты матрицы должны быть заданы числом." << endl;
-                return false;
+            while (true) {
+                cout << "c" << i << j << ":";
+                if (cin >> value) {
+                    problem.setCoef(i, j, value);
+                    break;
+                }
+                cout << "Ошибка: коэффициент должен быть числом." << endl;
+                clearInput();
             }
-            problem.setCoef(i, j, value);
         }
     }
     return true;
@@ -40,24 +84,27 @@ bool readConstants(SLAE& problem, int size) {
     float value;
     cout << "Введите свободные члены: " << endl;
     for (int i = 0; i < size; ++i) {
-        cout << "b" << i << ":";
-        if (!(cin >> value)) {
-            cout << "Ошибка: свободные члены должны быть заданы числом." << endl;
-            return false;
+        while (true) {
+            cout << "b" << i << ":";
+            if (cin >> value) {
+                problem.setConst(i, value);
+                break;
+            }
+            cout << "Ошибка: свободный член должен быть числом." << endl;
+            clearInput();
         }
-        problem.setConst(i, value);
     }
     return true;
 }
 
 void showMenu() {
-    cout << "\n=== Выберите метод решения ===" << endl;
-    cout << "1. Метод Гаусса (LU-разложение)" << endl;
-    cout << "2. Метод прогонки" << endl;
-    cout << "3. Метод простых итераций" << endl;
-    cout << "4. Метод Зейделя" << endl;
-    cout << "5. Все методы сразу" << endl;
-    cout << "0. Выход" << endl;
+    cout << "\n.----Выберите метод решения----" << endl;
+    cout << "1) Метод Гаусса (LU-разложение)" << endl;
+    cout << "2) Метод прогонки" << endl;
+    cout << "3) Метод простых итераций" << endl;
+    cout << "4) Метод Зейделя" << endl;
+    cout << "5) Все методы сразу" << endl;
+    cout << "0) Выход" << endl;
     cout << "Ваш выбор: ";
 }
 
@@ -93,32 +140,14 @@ void solveZ(SLAE& problem, int size, float eps, int limit) {
 }
 
 int main() {
-    int size, limit;
-    float eps;
-    
-    cout << "Введите порядок системы: ";
-    if (!(cin >> size) || size <= 0) {
-        cout << "Ошибка: порядок системы должен быть положительным числом." << endl;
-        return 1;
-    }
-
+    int size = readSize();
     SLAE problem(size);
     
-    if (!readMatrix(problem, size) || !readConstants(problem, size)) {
-        return 1;
-    }
+    readMatrix(problem, size);
+    readConstants(problem, size);
 
-    cout << "Введите эпсилон: ";
-    if (!(cin >> eps)) {
-        cout << "Ошибка: эпсилон должен быть задан числом." << endl;
-        return 1;
-    }
-
-    cout << "Введите предел итераций: ";
-    if (!(cin >> limit)) {
-        cout << "Ошибка: предел итераций должен быть задан числом." << endl;
-        return 1;
-    }
+    float eps = readEps();
+    int limit = readLimit();
 
     problem.printSLAE();
     
@@ -139,8 +168,7 @@ int main() {
         showMenu();
         if (!(cin >> choice)) {
             cout << "Ошибка ввода. Попробуйте снова." << endl;
-            cin.clear();
-            cin.ignore(10000, '\n');
+            clearInput();
             continue;
         }
 
