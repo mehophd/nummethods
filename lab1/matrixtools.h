@@ -13,5 +13,7 @@ float normVector(float* vec, int size);
 
 float normMatrix(float** matrix, int size);
 
+float** cloneMatrix(float** original, int size);
+
 
 #endif

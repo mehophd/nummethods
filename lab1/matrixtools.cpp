@@ -1,20 +1,19 @@
 #include <iostream>
 #include <cmath>
 #include <algorithm>
+#include "matrixtools.h"
 
 using namespace std;
 
-namespace {
-    float** cloneMatrix(float** original, int size) {
-        float** copy = new float*[size];
-        for (int i = 0; i < size; ++i) {
-            copy[i] = new float[size];
-            for (int j = 0; j < size; ++j) {
-                copy[i][j] = original[i][j];
-            }
+float** cloneMatrix(float** original, int size) {
+    float** copy = new float*[size];
+    for (int i = 0; i < size; ++i) {
+        copy[i] = new float[size];
+        for (int j = 0; j < size; ++j) {
+            copy[i][j] = original[i][j];
         }
-        return copy;
     }
+    return copy;
 }
 
 void freeMatrix(float** matrix, int size) {

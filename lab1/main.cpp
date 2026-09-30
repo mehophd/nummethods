@@ -3,6 +3,7 @@
 #include "matrixtools.h"
 #include <cmath>
 #include "Slae.h"
+#include "eigen.h"
 
 using namespace std;
 
@@ -103,14 +104,15 @@ void showMenu() {
     cout << "2) Метод прогонки" << endl;
     cout << "3) Метод простых итераций" << endl;
     cout << "4) Метод Зейделя" << endl;
-    cout << "5) Все методы сразу" << endl;
+    cout << "5) Метод Якоби (собственные значения)" << endl;
+    cout << "6) Все методы сразу" << endl;
     cout << "0) Выход" << endl;
     cout << "Ваш выбор: ";
 }
 
 void solveLU(SLAE& problem, int size) {
     float* x = methodLU(problem);
-    printSolution("Метод Гаусса (LU-разложение)", x, size);
+    printSolution("Метод Гаусса (LU-разложение) [прямой метод]", x, size);
     delete[] x;
 }
 
@@ -120,7 +122,7 @@ void solveTDMA(SLAE& problem, int size) {
         cout << "\nМетод прогонки" << endl;
         cout << "Не выполнено диагональное преобладание или матрица не трехдиагональная." << endl;
     } else {
-        printSolution("Метод прогонки", x, size);
+        printSolution("Метод прогонки [прямой метод]", x, size);
         delete[] x;
     }
 }
@@ -139,6 +141,39 @@ void solveZ(SLAE& problem, int size, float eps, int limit) {
     delete[] x;
 }
 
+void solveJacobi(SLAE& problem, int size, float eps, int limit) {
+    float** matrixCopy = problem.getMatrixCopy();
+    float** eigenvectors = nullptr;
+    int iters = 0;
+    
+    float* eigenvalues = methodJacobi(matrixCopy, eps, size, limit, &eigenvectors, &iters);
+    
+    cout << "\nМетод Якоби (собственные значения)" << endl;
+    if (!eigenvalues || !eigenvectors) {
+        cout << "Метод не сошелся или матрица не симметрична." << endl;
+    } else {
+        cout << "Собственные значения:" << endl;
+        for (int i = 0; i < size; ++i) {
+            cout << "λ" << i << ": " << eigenvalues[i] << endl;
+        }
+
+        cout << "\nСобственные векторы (по столбцам):" << endl;
+        for (int j = 0; j < size; ++j) {
+            cout << "x" << j << ": [";
+            for (int i = 0; i < size; ++i) {
+                cout << eigenvectors[i][j];
+                if (i < size - 1) cout << ", ";
+            }
+            cout << "]" << endl;
+        }
+        cout << "Итераций: " << iters << endl;
+    }
+
+    delete[] eigenvalues;
+    if (eigenvectors) freeMatrix(eigenvectors, size);
+    freeMatrix(matrixCopy, size);
+}
+
 int main() {
     int size = readSize();
     SLAE problem(size);
@@ -154,7 +189,7 @@ int main() {
     float det = determinant(problem.getMatrixCopy(), size);
     cout << "\nДетерминант: " << det << endl;
     
-    if (fabs(det) < 1e-10) {
+    if (fabs(det) < 1e-7) {
         cout << "Матрица вырожденная. Решение невозможно." << endl;
         return 1;
     }
@@ -191,10 +226,14 @@ int main() {
                 solveZ(problem, size, eps, limit);
                 break;
             case 5:
+                solveJacobi(problem, size, eps, limit);
+                break;
+            case 6:
                 solveLU(problem, size);
                 solveTDMA(problem, size);
                 solveSI(problem, size, eps, limit);
                 solveZ(problem, size, eps, limit);
+                solveJacobi(problem, size, eps, limit);
                 break;
             default:
                 cout << "Неверный выбор. Попробуйте снова." << endl;
