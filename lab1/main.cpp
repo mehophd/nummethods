@@ -104,8 +104,9 @@ void showMenu() {
     cout << "2) Метод прогонки" << endl;
     cout << "3) Метод простых итераций" << endl;
     cout << "4) Метод Зейделя" << endl;
-    cout << "5) Метод Якоби (собственные значения)" << endl;
-    cout << "6) Все методы сразу" << endl;
+    cout << "5) Метод вращений Якоби" << endl;
+    cout << "6) Метод QR (собственные значения)" << endl;
+    cout << "7) Все методы сразу" << endl;
     cout << "0) Выход" << endl;
     cout << "Ваш выбор: ";
 }
@@ -148,7 +149,7 @@ void solveJacobi(SLAE& problem, int size, float eps, int limit) {
     
     float* eigenvalues = methodJacobi(matrixCopy, eps, size, limit, &eigenvectors, &iters);
     
-    cout << "\nМетод Якоби (собственные значения)" << endl;
+    cout << "\nМетод вращений Якоби" << endl;
     if (!eigenvalues || !eigenvectors) {
         cout << "Метод не сошелся или матрица не симметрична." << endl;
     } else {
@@ -171,6 +172,37 @@ void solveJacobi(SLAE& problem, int size, float eps, int limit) {
 
     delete[] eigenvalues;
     if (eigenvectors) freeMatrix(eigenvectors, size);
+    freeMatrix(matrixCopy, size);
+}
+
+void solveQR(SLAE& problem, int size, float eps, int limit) {
+    float** matrixCopy = problem.getMatrixCopy();
+    int iters = 0;
+    float* imaginaryParts = new float[size];
+    
+    cout << "\nQR-алгоритм (собственные значения)" << endl;
+    
+    float* eigenvalues = methodQR(matrixCopy, eps, size, limit, &iters, imaginaryParts);
+    
+    if (!eigenvalues) {
+        cout << "Ошибка при вычислении собственных значений." << endl;
+    } else {
+        cout << "Собственные значения:" << endl;
+        for (int i = 0; i < size; ++i) {
+            if (imaginaryParts[i] == 0.0f) {
+                cout << "λ" << i << ": " << eigenvalues[i] << endl;
+            } else {
+                cout << "λ" << i << ": " << eigenvalues[i] 
+                     << (imaginaryParts[i] > 0 ? "+" : "") 
+                     << imaginaryParts[i] << "i" << endl;
+            }
+        }
+        cout << "Итераций: " << iters << endl;
+        
+        delete[] eigenvalues;
+    }
+    
+    delete[] imaginaryParts;
     freeMatrix(matrixCopy, size);
 }
 
@@ -229,11 +261,15 @@ int main() {
                 solveJacobi(problem, size, eps, limit);
                 break;
             case 6:
+                solveQR(problem, size, eps, limit);
+                break;
+            case 7:
                 solveLU(problem, size);
                 solveTDMA(problem, size);
                 solveSI(problem, size, eps, limit);
                 solveZ(problem, size, eps, limit);
                 solveJacobi(problem, size, eps, limit);
+                solveQR(problem, size, eps, limit);
                 break;
             default:
                 cout << "Неверный выбор. Попробуйте снова." << endl;
