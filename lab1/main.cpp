@@ -129,14 +129,14 @@ void solveTDMA(SLAE& problem, int size) {
 
 void solveSI(SLAE& problem, int size, float eps, int limit) {
     int iters = 0;
-    float* x = methodSI(problem, eps, limit, iters);
+    float* x = methodSI(problem, eps, limit, &iters);
     printSolution("Метод простых итераций", x, size, iters);
     delete[] x;
 }
 
 void solveZ(SLAE& problem, int size, float eps, int limit) {
     int iters = 0;
-    float* x = methodZ(problem, eps, limit, iters);
+    float* x = methodZ(problem, eps, limit, &iters);
     printSolution("Метод Зейделя", x, size, iters);
     delete[] x;
 }
