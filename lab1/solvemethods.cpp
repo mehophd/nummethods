@@ -127,7 +127,7 @@ float* methodTDMA(SLAE &problem) {
     return x;
 }
 
-float* methodSI(SLAE &problem, float eps, int limit, int &iterations) {
+float* methodSI(SLAE &problem, float eps, int limit, int* iterations) {
     int size = problem.getSize();
     float** matrix = problem.getMatrixCopy();
     float* constants = problem.getConstCopy();
@@ -212,12 +212,12 @@ float* methodSI(SLAE &problem, float eps, int limit, int &iterations) {
     freeMatrix(matrix, size);
     delete[] constants;
 
-    iterations = k;
+    *iterations = k;
     
     return result;
 }
 
-float* methodZ(SLAE &problem, float eps, int limit, int &iterations) {
+float* methodZ(SLAE &problem, float eps, int limit, int* iterations) {
     int size = problem.getSize();
     float** matrix = problem.getMatrixCopy();
     float* constants = problem.getConstCopy();
@@ -306,7 +306,7 @@ float* methodZ(SLAE &problem, float eps, int limit, int &iterations) {
     freeMatrix(matrix, size);
     delete[] constants;
 
-    iterations = k;
+    *iterations = k;
     
     return result;
 }
