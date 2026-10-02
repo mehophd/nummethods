@@ -113,7 +113,7 @@ void showMenu() {
 
 void solveLU(SLAE& problem, int size) {
     float* x = methodLU(problem);
-    printSolution("Метод Гаусса (LU-разложение) [прямой метод]", x, size);
+    printSolution("Метод Гаусса (LU-разложение)", x, size);
     delete[] x;
 }
 
@@ -123,7 +123,7 @@ void solveTDMA(SLAE& problem, int size) {
         cout << "\nМетод прогонки" << endl;
         cout << "Не выполнено диагональное преобладание или матрица не трехдиагональная." << endl;
     } else {
-        printSolution("Метод прогонки [прямой метод]", x, size);
+        printSolution("Метод прогонки", x, size);
         delete[] x;
     }
 }
