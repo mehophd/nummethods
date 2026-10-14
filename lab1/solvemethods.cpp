@@ -5,10 +5,27 @@
 
 using namespace std;
 
-float* methodLU(SLAE &problem) {
+#include <cmath>
+#include <algorithm>
+#include "solvemethods.h"
+#include "matrixtools.h"
+
+using namespace std;
+
+float* methodLU(SLAE &problem, float**& out_inverse, float& out_det) {
     int size = problem.getSize();
     float** matrix = problem.getMatrixCopy();
     float* constants = problem.getConstCopy();
+
+    out_det = 1.0f;
+    int swapCount = 0;
+
+    // Инициализируем обратную матрицу как единичную
+    float** inverse = new float*[size];
+    for (int i = 0; i < size; ++i) {
+        inverse[i] = new float[size]();
+        inverse[i][i] = 1.0f;
+    }
 
     for (int start = 0; start < size; ++start) {
         int maxRow = start;
@@ -21,28 +38,56 @@ float* methodLU(SLAE &problem) {
         if (maxRow != start) {
             swap(constants[start], constants[maxRow]);
             swap(matrix[start], matrix[maxRow]);
+            swap(inverse[start], inverse[maxRow]); // Применяем перестановку и к обратной матрице
+            swapCount++;
         }
 
         if (fabs(matrix[start][start]) < 1e-7f) {
+            out_det = 0.0f;
             freeMatrix(matrix, size);
             delete[] constants;
+            for (int i = 0; i < size; ++i) delete[] inverse[i];
+            delete[] inverse;
             return nullptr;
         }
 
+        out_det *= matrix[start][start];
+
         for (int i = start + 1; i < size; ++i) {
-            matrix[i][start] /= matrix[start][start];
+            float factor = matrix[i][start] / matrix[start][start];
+            matrix[i][start] = factor;
             for (int j = start + 1; j < size; ++j) {
-                matrix[i][j] -= matrix[start][j] * matrix[i][start];
+                matrix[i][j] -= factor * matrix[start][j];
+            }
+            for (int j = 0; j < size; ++j) {
+                inverse[i][j] -= factor * inverse[start][j];
             }
         }
     }
+
+    if (swapCount % 2 != 0) {
+        out_det = -out_det;
+    }
+
+    // U * X = inverse, где inverse сейчас содержит Y = L^{-1} * P
+    // В результате X станет равной A^{-1}
+    for (int j = 0; j < size; ++j) {
+        for (int i = size - 1; i >= 0; --i) {
+            float sum = 0.0f;
+            for (int k = i + 1; k < size; ++k) {
+                sum += matrix[i][k] * inverse[k][j];
+            }
+            inverse[i][j] = (inverse[i][j] - sum) / matrix[i][i];
+        }
+    }
+
+    out_inverse = inverse;
 
     // Ly=Pb Прямой ход
     // y[0] = b'[0]
     // L10*y[0] + y[1] = b'[1] 
     // L20*y[0] + L21*y[1] + y[2] = b'[2]
     // L30*y[0] + L31*y[1] + L32*y[2] + y[3] = b'[2]
-
     float* y = new float[size];
     y[0] = constants[0];
     for (int i = 1; i < size; ++i) {
@@ -58,7 +103,6 @@ float* methodLU(SLAE &problem) {
     //            U11*x[1] + U12*x[2] + U13*x[3] = y[1]
     //                       U22*x[2] + U23*x[3] = y[2]
     //                                  U33*x[3] = y[3]
-
     float* x = new float[size];
     x[size - 1] = y[size - 1] / matrix[size - 1][size - 1];
     for (int i = size - 2; i >= 0; --i) {

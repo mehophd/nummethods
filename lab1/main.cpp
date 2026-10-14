@@ -112,8 +112,27 @@ void showMenu() {
 }
 
 void solveLU(SLAE& problem, int size) {
-    float* x = methodLU(problem);
-    printSolution("Метод Гаусса (LU-разложение)", x, size);
+    float** inverse = nullptr;
+    float det = 0.0f;
+    float* x = methodLU(problem, inverse, det);
+    
+    cout << "\nМетод Гаусса (LU-разложение)" << endl;
+    if (!x) {
+        cout << "Метод не сошелся или матрица вырожденная." << endl;
+    } else {
+        cout << "Детерминант: " << det << endl;
+        cout << "Обратная матрица:" << endl;
+        printMatrix(inverse, size);
+        cout << "Решение:" << endl;
+        for (int i = 0; i < size; ++i) {
+            cout << "x" << i << ": " << x[i] << endl;
+        }
+        
+        for (int i = 0; i < size; ++i) {
+            delete[] inverse[i];
+        }
+        delete[] inverse;
+    }
     delete[] x;
 }
 
@@ -198,7 +217,6 @@ void solveQR(SLAE& problem, int size, float eps, int limit) {
             }
         }
         cout << "Итераций: " << iters << endl;
-        
         delete[] eigenvalues;
     }
     
@@ -218,17 +236,31 @@ int main() {
 
     problem.printSLAE();
     
-    float det = determinant(problem.getMatrixCopy(), size);
+    float** inverse = nullptr;
+    float det = 0.0f;
+    
+    float* initial_x = methodLU(problem, inverse, det);
+    
     cout << "\nДетерминант: " << det << endl;
     
-    if (fabs(det) < 1e-7) {
+    if (fabs(det) < 1e-7f || !initial_x) {
         cout << "Матрица вырожденная. Решение невозможно." << endl;
+        if (initial_x) delete[] initial_x;
+        if (inverse) {
+            for (int i = 0; i < size; ++i) delete[] inverse[i];
+            delete[] inverse;
+        }
         return 1;
     }
     
-    float** inverse = inverseMatrix(problem.getMatrixCopy(), size);
-    cout << "\nОбратная матрица: " << endl;
+    cout << "\nОбратная матрица:" << endl;
     printMatrix(inverse, size);
+    
+    delete[] initial_x;
+    for (int i = 0; i < size; ++i) {
+        delete[] inverse[i];
+    }
+    delete[] inverse;
 
     int choice;
     while (true) {
