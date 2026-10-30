@@ -43,8 +43,7 @@ double lagrangeValue(const std::vector<double>& xs, const std::vector<double>& y
 }
 
 // Таблица dd[k][i] = f[x_i, ..., x_{i+k}]
-std::vector<std::vector<double>> dividedDiffTable(const std::vector<double>& xs,
-                                                  const std::vector<double>& ys) {
+std::vector<std::vector<double>> dividedDiffTable(const std::vector<double>& xs, const std::vector<double>& ys) {
     const int n = static_cast<int>(xs.size());
     std::vector<std::vector<double>> dd(n);
     dd[0] = ys;
@@ -57,8 +56,7 @@ std::vector<std::vector<double>> dividedDiffTable(const std::vector<double>& xs,
 }
 
 // Ньютон в точке x
-double newtonValue(const std::vector<double>& xs,
-                   const std::vector<std::vector<double>>& dd, double x) {
+double newtonValue(const std::vector<double>& xs, const std::vector<std::vector<double>>& dd, double x) {
     double result = dd[0][0];
     double product = 1.0;
     for (int k = 1; k < static_cast<int>(xs.size()); ++k) {
@@ -101,8 +99,7 @@ void printLagrangeForm(const std::vector<double>& xs, const std::vector<double>&
     std::cout << "\n";
 }
 
-void printDividedDiffTable(const std::vector<double>& xs,
-                           const std::vector<std::vector<double>>& dd) {
+void printDividedDiffTable(const std::vector<double>& xs, const std::vector<std::vector<double>>& dd) {
     const int n = static_cast<int>(xs.size());
     std::cout << "\nТаблица разделённых разностей:\n";
     std::cout << " i |    Xi    |  f(Xi)   | I порядок | II порядок | III порядок\n";
@@ -120,8 +117,7 @@ void printDividedDiffTable(const std::vector<double>& xs,
     }
 }
 
-void printNewtonForm(const std::vector<double>& xs,
-                     const std::vector<std::vector<double>>& dd) {
+void printNewtonForm(const std::vector<double>& xs, const std::vector<std::vector<double>>& dd) {
     const int n = static_cast<int>(xs.size());
     std::cout << "\nМногочлен Ньютона:\n";
     std::cout << "P3(x) = " << std::fixed << std::setprecision(5) << dd[0][0] << "\n";
