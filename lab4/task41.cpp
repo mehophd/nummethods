@@ -124,6 +124,7 @@ void printAdamsTable(const OdeSolution& s) {
             << fCell(s.g[k]) << "| " << fCell(yExact(s.x[k])) << "| "
             << eCell(s.y[k] - yExact(s.x[k])) << "| "
             << eCell(s.z[k] - zExact(s.x[k]));
+        std::cout << row.str() << "\n";
     }
 }
 
