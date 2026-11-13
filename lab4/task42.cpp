@@ -29,7 +29,7 @@ double zExact(double x) {
 // В точке x = 0 уравнение вырождается в -y'(0) + y(0) = 0, т.е. y(0) = y'(0)
 // условие y'(0) = 1 равносильно y(0) = 1, а
 // 1/x снимается заменой v = (y' - y)/x:
-//   y' = y + x v,    v' = v.
+//   y' = y + x v,    v' = v
 OdeSystem makeRegularizedSystem() {
     OdeSystem sys;
     // y' = y + x v ; v' = v
